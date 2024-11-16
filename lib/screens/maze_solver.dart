@@ -63,8 +63,6 @@ class _MazeSolverState extends State<MazeSolver> {
   }
 
   Future<void> solveMaze(int row, int col) async {
-    // print("At position: ($row, $col)");
-
     if (isCanceled ||
         !mounted ||
         widget.idx != 0 ||

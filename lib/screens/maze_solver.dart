@@ -47,6 +47,12 @@ class _MazeSolverState extends State<MazeSolver> {
         path.clear();
       });
     }
+    if (completer != null && !completer.isCompleted) {
+      completer.complete();
+    }
+    if (isSolved) {
+      return;
+    }
     setState(() {
       path.clear();
       isSolved = false;

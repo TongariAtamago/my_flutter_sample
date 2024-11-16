@@ -16,6 +16,7 @@ class _MazeSolverState extends State<MazeSolver> {
   late List<List<bool>> visited;
   bool isSolved = false;
   bool isCanceled = false;
+  bool hasPushedRetryButton = false;
 
   late Completer<void> completer;
 
@@ -37,21 +38,24 @@ class _MazeSolverState extends State<MazeSolver> {
   @override
   void didUpdateWidget(covariant MazeSolver oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (isSolved) {
-      return;
+    if (oldWidget.maze != widget.maze) {
+      isSolved = false;
+      resetSolver();
     }
-    if ((oldWidget.maze != widget.maze) || (oldWidget.idx != widget.idx)) {
+    if ((oldWidget.idx != widget.idx)) {
       resetSolver();
     }
   }
 
   void resetSolver() {
-    if (isSolved) {
+    if (isSolved && !hasPushedRetryButton) {
       return;
     }
     if (widget.maze.isEmpty) {
       setState(() {
         isSolved = true;
+        isCanceled = false;
+        hasPushedRetryButton = false;
         path.clear();
       });
       return;
@@ -60,6 +64,7 @@ class _MazeSolverState extends State<MazeSolver> {
       path.clear();
       isSolved = false;
       isCanceled = false;
+      hasPushedRetryButton = false;
       visited = List.generate(
         widget.maze.length,
         (i) => List.generate(widget.maze[0].length, (j) => false),
@@ -72,6 +77,7 @@ class _MazeSolverState extends State<MazeSolver> {
   }
 
   Future<void> solveMaze(int row, int col) async {
+    print("Solving maze at $row, $col");
     if (isCanceled ||
         !mounted ||
         !isInBounds(row, col) ||
@@ -168,7 +174,15 @@ class _MazeSolverState extends State<MazeSolver> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: isSolved ? resetSolver : null,
+        onPressed: () {
+          if (isSolved) {
+            print("Resetting solver");
+            setState(() {
+              hasPushedRetryButton = true;
+            });
+            resetSolver();
+          }
+        },
         child:
             isSolved ? const Icon(Icons.refresh) : const Icon(Icons.play_arrow),
       ),

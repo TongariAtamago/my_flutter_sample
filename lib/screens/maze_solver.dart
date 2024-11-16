@@ -26,31 +26,34 @@ class _MazeSolverState extends State<MazeSolver> {
   }
 
   @override
-  void didUpdateWidget(covariant MazeSolver oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.maze != widget.maze) {
-      resetSolver();
+  void dispose() {
+    if (!isSolved) {
+      isCanceled = true;
+      completer.complete();
+      super.dispose();
     }
   }
 
   @override
-  void dispose() {
-    isCanceled = true;
-    completer.complete();
-    super.dispose();
+  void didUpdateWidget(covariant MazeSolver oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (isSolved) {
+      return;
+    }
+    if ((oldWidget.maze != widget.maze) || (oldWidget.idx != widget.idx)) {
+      resetSolver();
+    }
   }
 
   void resetSolver() {
+    if (isSolved) {
+      return;
+    }
     if (widget.maze.isEmpty) {
       setState(() {
         isSolved = true;
         path.clear();
       });
-    }
-    if (completer != null && !completer.isCompleted) {
-      completer.complete();
-    }
-    if (isSolved) {
       return;
     }
     setState(() {
@@ -71,11 +74,14 @@ class _MazeSolverState extends State<MazeSolver> {
   Future<void> solveMaze(int row, int col) async {
     if (isCanceled ||
         !mounted ||
-        widget.idx != 0 ||
         !isInBounds(row, col) ||
         visited[row][col] ||
         widget.maze[row][col] == 1 ||
         isSolved) {
+      return;
+    }
+
+    if (widget.idx != 0 && !isSolved) {
       return;
     }
 

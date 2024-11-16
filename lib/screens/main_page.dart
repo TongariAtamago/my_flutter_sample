@@ -27,7 +27,7 @@ class _MainPageState extends State<MainPage> {
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          MazeSolver(key: UniqueKey(), maze: maze, idx: _selectedIndex),
+          MazeSolver(maze: maze, idx: _selectedIndex),
           MazeBuilder(maze: maze, onMazeUpdated: _updateMaze),
         ],
       ),
